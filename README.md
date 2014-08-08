@@ -9,4 +9,4 @@ Also a few from terrible songs and earworms to keep you on your toes.
 Lyrics are mostly SFW.
 
 ## Breaksys ##
-Stolen/forked/omg-git-is-hard from https://github.com/arrjay/fortunes
+Crashing systems for Fun & Profit
